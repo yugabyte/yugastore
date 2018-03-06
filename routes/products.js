@@ -24,6 +24,39 @@ const products = [
     inCart: false,
     category: "business"
   },
+  {
+    id: 3,
+    name: "The 7 Habits of Highly Effective People",
+    description: "The 7 Habits of Highly Effective PeoplePowerful Lessons in Personal Change.",
+    price: 11.48,
+    author: "Stephen R. Covey",
+    type: "paperback",
+    img: "https://images-na.ssl-images-amazon.com/images/I/51Myx6jMujL._AA300_.jpg",
+    inCart: false,
+    category: "business"
+  },
+  {
+    id: 4,
+    name: "Principles: Life and Work",
+    description: "In Principles, Dalio shares what he's learned over the course of his remarkable career. He argues that life, management, economics, and investing can all be systemized into rules and understood like machines.",
+    price: 18.00,
+    author: "Ray Dalio",
+    type: "hardcover",
+    img: "https://images-na.ssl-images-amazon.com/images/I/51UyMOpP%2BGL._AA300_.jpg",
+    inCart: false,
+    category: "business"
+  },
+  {
+    id: 5,
+    name: "How to Win Friends & Influence People",
+    description: "For more than sixty years the rock-solid, time-tested advice in this book has carried thousands of now famous people up the ladder of success in their business and personal lives.",
+    price: 9.60,
+    author: "Dale Carnegie",
+    type: "paperback",
+    img: "https://images-na.ssl-images-amazon.com/images/I/51PWIy1rHUL._AA300_.jpg",
+    inCart: false,
+    category: "business"
+  },
   //
   // TODO: Add ids 3, 4, 5
   //
