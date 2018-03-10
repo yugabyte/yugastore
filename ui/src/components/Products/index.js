@@ -45,7 +45,6 @@ class Products extends Component {
                   </div>
                   <div className="product-details">
                     <h1 id="product-name">{product.name}</h1>
-                    <h4 id="product-description">{product.description}</h4>
                   </div>
                   </Link>
                   <div className="price-add">

@@ -1,5 +1,6 @@
 .show-product {
   width: 100vw;
+  padding: 20px 0;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -95,4 +96,18 @@
 
 .stars {
   display: flex;
+}
+
+.review-star {
+  color: orange;
+}
+
+.add-to-cart {
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
+.add-to-cart-text {
+  padding: 10px;
+  font-size: 20px;
 }

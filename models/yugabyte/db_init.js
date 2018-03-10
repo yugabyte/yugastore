@@ -36,13 +36,17 @@ function createProductsTable() {
     '  id int PRIMARY KEY, ' +
     '  name TEXT, ' +
     '  description TEXT, ' +
-    '  price FLOAT, ' +
+    '  price DOUBLE, ' +
     '  author TEXT, ' +
     '  type TEXT, ' +
     '  img TEXT, ' +
     '  category TEXT' +
     ');'
   ybCassandraClient.execute(create_table, function (err, result) {
+    if (err) {
+      console.log(err);
+      return;
+    }
     console.log('Successfully created table yb_ecommerce.products.');
     loadProducts();
   });
