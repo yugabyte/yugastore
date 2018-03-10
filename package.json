@@ -16,6 +16,7 @@
     "morgan": "~1.9.0",
     "pg": "^7.4.1",
     "react-animate-css": "0.0.1",
+    "redis": "^2.8.0",
     "serve-favicon": "~2.4.5",
     "supervisor": "^0.12.0"
   }

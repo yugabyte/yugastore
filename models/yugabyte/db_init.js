@@ -1,4 +1,5 @@
 const cassandra = require('cassandra-driver');
+const redis = require("redis")
 const async = require('async');
 const assert = require('assert');
 
@@ -6,10 +7,11 @@ var sample_data = require("../sample_data.json");
 console.log("Parsed %d product items.", sample_data.products.length);
 
 //
-// Create a YB CQL client.
+// Create a YugaByte client for Cassandra and Redis APIs.
 //
-const client = new cassandra.Client({ contactPoints: ['127.0.0.1'] });
-client.connect(function (err) {
+const ybRedisClient = redis.createClient();
+const ybCassandraClient = new cassandra.Client({ contactPoints: ['127.0.0.1'] });
+ybCassandraClient.connect(function (err) {
   assert.ifError(err);
   console.log("Connected to cluster.");
   createKeyspace();
@@ -19,16 +21,16 @@ client.connect(function (err) {
 // Create the keyspace.
 //
 function createKeyspace() {
-  client.execute('CREATE KEYSPACE IF NOT EXISTS yb_ecommerce;', function (err, result) {
+  ybCassandraClient.execute('CREATE KEYSPACE IF NOT EXISTS yb_ecommerce;', function (err, result) {
     console.log('Successfully created keyspace yb_ecommerce.');
-    createTable();
+    createProductsTable();
   });
 }
 
 //
-// Create the table.
+// Create the tables.
 //
-function createTable() {
+function createProductsTable() {
   const create_table =
     'CREATE TABLE IF NOT EXISTS yb_ecommerce.products (' +
     '  id int PRIMARY KEY, ' +
@@ -40,16 +42,16 @@ function createTable() {
     '  img TEXT, ' +
     '  category TEXT' +
     ');'
-  client.execute(create_table, function (err, result) {
+  ybCassandraClient.execute(create_table, function (err, result) {
     console.log('Successfully created table yb_ecommerce.products.');
-    loadData();
+    loadProducts();
   });
 }
 
 //
-// Insert the data using a prepare-bind batch insert statement.
+// Load the sample data.
 //
-function loadData() {
+function loadProducts() {
   const insert = "INSERT INTO yb_ecommerce.products " +
                  "  (id, name, description, price, author, type, img, category)" +
                  " VALUES" +
@@ -67,17 +69,38 @@ function loadData() {
     });
   }
   // Prepare and insert the batch.
-  client.batch(insert_batch, { prepare: true }, function(err) {
+  ybCassandraClient.batch(insert_batch, { prepare: true }, function(err) {
      assert.ifError(err);
      console.log('Inserted %d rows into table yb_ecommerce.products.', insert_batch.length);
-     teardown();
+     loadReviews();
   });
+}
+
+//
+// For each of the products load the reviews.
+//
+function loadReviews() {
+  for (var i = 0; i < sample_data.products.length; i++) {
+    var product = sample_data.products[i];
+    var numReviews = Math.floor(Math.random() * 1000) + 1;
+    var totalstars = Math.floor(Math.random() * 2 * numReviews) + 3 * numReviews;
+    var avgStars = totalstars / numReviews;
+    ybRedisClient.hmset("product:" + product.id, ["stars", avgStars.toFixed(2),
+                                                  "num_reviews", numReviews]);
+    ybRedisClient.zadd("allproducts:num_reviews", numReviews, product.id);
+    ybRedisClient.zadd("allproducts:num_reviews", totalstars, product.id);
+  }
+  teardown();
 }
 
 //
 // Close the client.
 //
 function teardown() {
-  console.log('Shutting down connection.');
-  client.shutdown();
+  console.log('Shutting down YugaByte client connection for Cassandra API.');
+  ybCassandraClient.shutdown();
+
+  ybRedisClient.quit(function (err, res) {
+    console.log('Shutting down YugaByte client connection for Redis API.');
+  });
 }

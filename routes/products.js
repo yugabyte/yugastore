@@ -47,11 +47,15 @@ const related_product_ids_map = {
   "20": { related_products: [] },
 };
 
+const redis = require("redis")
 const yugabyte = require('cassandra-driver');
-const ybClient = new yugabyte.Client({ contactPoints: ['127.0.0.1'],
-                                       keyspace: 'yb_ecommerce'
-                                     });
-ybClient.connect(function (err) {
+
+const ybRedis = redis.createClient();
+const ybCassandra =
+  new yugabyte.Client({ contactPoints: ['127.0.0.1'],
+                        keyspace: 'yb_ecommerce'
+                      });
+ybCassandra.connect(function (err) {
   if(err) {
     console.log(err);
   }
@@ -60,62 +64,47 @@ ybClient.connect(function (err) {
 /* List all products. */
 router.get('/', function(req, res, next) {
   productListing = [];
-  ybClient.execute('SELECT * FROM yb_ecommerce.products;')
-          .then(result => {
-            const row = result.first();
-            for (var i = 0; i < result.rows.length; i++) {
-              productListing.push(result.rows[i]); 
-            }
-            return res.json(productListing);
-          });
+  ybCassandra.execute('SELECT * FROM yb_ecommerce.products;')
+             .then(result => {
+                const row = result.first();
+                for (var i = 0; i < result.rows.length; i++) {
+                  productListing.push(result.rows[i]); 
+                }
+                return res.json(productListing);
+              });
 });
 
 /* List products in a specific category. */
 router.get('/category/:category', function(req, res, next) {
   productListing = [];
-  ybClient.execute('SELECT * FROM yb_ecommerce.products WHERE category=?;', [req.params.category])
-          .then(result => {
-            const row = result.first();
-            for (var i = 0; i < result.rows.length; i++) {
-              productListing.push(result.rows[i]); 
-            }
-            return res.json(productListing);
-          });
+  var selectStmt = 'SELECT * FROM yb_ecommerce.products WHERE category=?;';
+  ybCassandra.execute(selectStmt, [req.params.category])
+              .then(result => {
+                const row = result.first();
+                for (var i = 0; i < result.rows.length; i++) {
+                  productListing.push(result.rows[i]); 
+                }
+                return res.json(productListing);
+              });
 });
 
 /* Return details of a specific product id. */
 router.get('/details/:id', function(req, res, next) {
-  res_products = [];
-  products.map((product) => {
-    if (product.id == req.params.id) {
-      res_products.push(product);
-    }
-  });
-  product = {}
-  if (res_products.length > 0) {
-    product = res_products[0];
-
-    // TODO: Add detailed description.
-
-    // Add review info for the product.
-    product.reviews = product_review_details_map[product.id];
-
-    // TODO: Add related products if any.
-    // related_product_ids = related_product_ids_map[product.id].related_products;
-    // console.log(related_product_ids);
-    // if (related_product_ids.length > 0) {
-    //   var related_products = [];
-    //   products.map((cur_product) => {
-    //     console.log("related: " + related_product_ids + ", cur = " + cur_product.id);
-    //     if (related_product_ids.indexOf(cur_product.id) != -1) {
-    //       related_products.push(cur_product);
-    //       console.log("Added: " + cur_product.id);
-    //     }
-    //   });
-    //   product.relatedProducts = related_products;
-    // }
-  }
-  res.json(product);
+  var productDetails = {}
+  var redisKey = 'product:' + req.params.id;
+  var selectStmt = 'SELECT * FROM yb_ecommerce.products WHERE id=' + req.params.id + ';';
+  ybCassandra.execute(selectStmt)
+              .then(result => {
+                const row = result.first();
+                productDetails = Object.assign({}, row);
+                return productDetails;
+              })
+              .then(productDetails => ybRedis.hgetall('product:' + req.params.id, function(err, result) {
+                productDetails.stars = result.stars;
+                productDetails.num_reviews = result.num_reviews;
+                res.json(productDetails);
+                return productDetails;
+              }));
 });
 
 
