@@ -25,7 +25,7 @@ router.get('/', function(req, res, next) {
                   productListing.push(result.rows[i]); 
                 }
                 return res.json(productListing);
-              });
+             });
 });
 
 /* List products in a specific category. */
