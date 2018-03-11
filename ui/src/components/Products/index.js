@@ -6,17 +6,15 @@ import { Link } from 'react-router-dom';
 import './index.css';
 
 class Products extends Component {
-  state = {current_category: "", products: []}
+  state = {current_query: "", products: []}
 
   fetchProducts() {
     if (this.state.products.length == 0 ||
-        this.state.current_category != this.props.category) {
-      this.state.current_category = this.props.category;
+        this.state.current_query != this.props.query) {
+      this.state.current_query = this.props.query;
       var url = '/products';
-      console.log(this.props);
-      console.log("Fetching url: " + url);
-      if (this.props.category) {
-        url = '/products/category/' + this.props.category;
+      if (this.props.query) {
+        url = '/products/' + this.props.query;
       }
       fetch(url)
         .then(res => res.json())
@@ -26,8 +24,7 @@ class Products extends Component {
 
   render() {
     this.fetchProducts();
-    console.log(this.props.name);
-    console.log(this.state.products);
+    var stars = ["star_border", "star_border", "star_border", "star_border", "star_border"];
     return (
       <div className="products">
         <div className="products-title">
@@ -36,7 +33,21 @@ class Products extends Component {
 
         <div className="items">
           {this.state.products.map((product) => {
-          	  console.log(product);
+              if (product.stars > 0) {
+                stars[0] = (product.stars < 1) ? "star_half" : "star";
+              }
+              if (product.stars > 1) {
+                stars[1] = (product.stars < 2) ? "star_half" : "star";
+              }
+              if (product.stars > 2) {
+                stars[2] = (product.stars < 3) ? "star_half" : "star";
+              }
+              if (product.stars > 3) {
+                stars[3] = (product.stars < 4) ? "star_half" : "star";
+              }
+              if (product.stars > 4) {
+                stars[4] = (product.stars < 5) ? "star_half" : "star";
+              }
               return(
                 <div className="item">
                   <Link to={`/products/${product.id}`}>
@@ -47,6 +58,16 @@ class Products extends Component {
                     <h1 id="product-name">{product.name}</h1>
                   </div>
                   </Link>
+                  <div className="reviews-add">
+                    <div className="stars">
+                      <Icon small id="add-icon" className="review-star">{ stars[0] }</Icon>
+                      <Icon small id="add-icon" className="review-star">{ stars[1] }</Icon>
+                      <Icon small id="add-icon" className="review-star">{ stars[2] }</Icon>
+                      <Icon small id="add-icon" className="review-star">{ stars[3] }</Icon>
+                      <Icon small id="add-icon" className="review-star">{ stars[4] }</Icon>
+                    </div>
+                    {product.stars} stars from {product.num_reviews} reviews
+                  </div>
                   <div className="price-add">
                     <h5 id="product-price">${product.price}</h5>
                     <Icon small onClick={() => this.addProduct(product)} id="add-icon">add_shopping_cart</Icon>

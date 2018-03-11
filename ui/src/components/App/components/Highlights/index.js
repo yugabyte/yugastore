@@ -9,23 +9,23 @@ const Highlights = () => (
     <h1 id="highlights-title">Books at YugaStore</h1>
     <div className="links-highlights">
       <p>
-        <NavLink activeClassName="selected" className="nav-link-highlights" to="/">
-          Award winners
+        <NavLink activeClassName="selected" className="nav-link-highlights" to="/sort/num_stars">
+          Highest Rating
         </NavLink>
       </p>
       <p>
-        <NavLink activeClassName="selected" className="nav-link-highlights" to="/">
-          Deals in Books
+        <NavLink activeClassName="selected" className="nav-link-highlights" to="/sort/num_reviews">
+          Most Reviews
         </NavLink>
       </p>
       <p>
-        <NavLink activeClassName="selected" className="nav-link-highlights" to="/">
-          100 must-read books
+        <NavLink activeClassName="selected" className="nav-link-highlights" to="/sort/num_buys">
+          Best Selling
         </NavLink>
       </p>
       <p>
-        <NavLink activeClassName="selected" className="nav-link-highlights" to="/">
-          Classics
+        <NavLink activeClassName="selected" className="nav-link-highlights" to="/sort/num_views">
+          Most Viewed
         </NavLink>
       </p>
     </div>

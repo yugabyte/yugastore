@@ -40,7 +40,9 @@ function createProductsTable() {
     '  author TEXT, ' +
     '  type TEXT, ' +
     '  img TEXT, ' +
-    '  category TEXT' +
+    '  category TEXT, ' +
+    '  num_reviews INT, ' +
+    '  total_stars INT' +
     ');'
   ybCassandraClient.execute(create_table, function (err, result) {
     if (err) {
@@ -53,19 +55,35 @@ function createProductsTable() {
 }
 
 //
-// Load the sample data.
+// Load the sample product data, as well as reviews for the product. Here we are only inserting review
+// metadata (such as number of reviews written and total ratings, so we can find the average rating across
+// all reviews).
+//
+// Some considerations: 
+//   NOTE #1: We will keep total reviews across products as a Redis sorted set in order to answer query the
+//            most reviewed product, the highest rated product, etc.
+//   NOTE #2: Ideally, review metadata should be stored in a separate Redis table. For now we are putting it
+//            into the same products table to keep things simple. 
 //
 function loadProducts() {
   const insert = "INSERT INTO yb_ecommerce.products " +
-                 "  (id, name, description, price, author, type, img, category)" +
+                 "  (id, name, description, price, author, type, img, category, num_reviews, total_stars)" +
                  " VALUES" +
-                 "  (?, ?, ?, ?, ?, ?, ?, ?);"
+                 "  (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);"
   // Prepare a batch insert.
   var insert_batch = [];
+  var review_metadata = [];
   for (var i = 0; i < sample_data.products.length; i++) {
     var p = sample_data.products[i];
+
+    // The number of reviews written for this item will be a random number between 1 and 1000.
+    var numReviews = Math.floor(Math.random() * 1000) + 1;
+    // Give this item between 3 and 5 stars for each of the reviews above.
+    var totalStars = Math.floor(Math.random() * 2 * numReviews) + 3 * numReviews;
+    var avgStars = totalStars / numReviews
     var params =
-      [p.id, p.name, p.description, p.price, p.author, p.type, p.img, p.category];
+      [p.id, p.name, p.description, p.price, p.author, p.type, p.img, p.category, numReviews, totalStars];
+    review_metadata.push({"id": p.id, "num_reviews": numReviews, "num_stars": avgStars.toFixed(2)});
 
     insert_batch.push({
       query: insert,
@@ -76,23 +94,28 @@ function loadProducts() {
   ybCassandraClient.batch(insert_batch, { prepare: true }, function(err) {
      assert.ifError(err);
      console.log('Inserted %d rows into table yb_ecommerce.products.', insert_batch.length);
-     loadReviews();
+     loadReviews(review_metadata);
   });
 }
 
 //
-// For each of the products load the reviews.
+// For each of the products load the reviews, as well as some views/buys stats.
 //
-function loadReviews() {
-  for (var i = 0; i < sample_data.products.length; i++) {
-    var product = sample_data.products[i];
-    var numReviews = Math.floor(Math.random() * 1000) + 1;
-    var totalstars = Math.floor(Math.random() * 2 * numReviews) + 3 * numReviews;
-    var avgStars = totalstars / numReviews;
-    ybRedisClient.hmset("product:" + product.id, ["stars", avgStars.toFixed(2),
-                                                  "num_reviews", numReviews]);
-    ybRedisClient.zadd("allproducts:num_reviews", numReviews, product.id);
-    ybRedisClient.zadd("allproducts:num_reviews", totalstars, product.id);
+function loadReviews(review_metadata) {
+  // Delete all existing keys.
+  ybRedisClient.del("allproducts:num_reviews");
+  ybRedisClient.del("allproducts:num_stars");
+  ybRedisClient.del("allproducts:num_buys");
+  ybRedisClient.del("allproducts:num_views");
+
+  for (var i = 0; i < review_metadata.length; i++) {
+    var e = review_metadata[i];
+    var numBuys = Math.floor(Math.random() * 100);
+    var numViews = Math.floor(Math.random() * 9000) + 1000;
+    ybRedisClient.zadd("allproducts:num_reviews", e.num_reviews, e.id);
+    ybRedisClient.zadd("allproducts:num_stars", e.num_stars, e.id);
+    ybRedisClient.zadd("allproducts:num_buys", numBuys, e.id);
+    ybRedisClient.zadd("allproducts:num_views", numViews, e.id);
   }
   teardown();
 }

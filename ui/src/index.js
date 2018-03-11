@@ -26,26 +26,52 @@ ReactDOM.render(
           render={(props) => (
             <Products
               name={"Business Books"}
-              category={"business"} /> 
+              query={"category/business"} /> 
           )} />
         <Route path="/cookbooks"
           render={(props) => (
             <Products
               name={"Cookbooks"}
-              category={"cookbooks"} /> 
+              query={"category/cookbooks"} /> 
           )} />
         <Route path="/mystery"
           render={(props) => (
             <Products
               name={"Mystery & Suspense"}
-              category={"mystery"} /> 
+              query={"category/mystery"} /> 
           )} />
         <Route path="/scifi"
           render={(props) => (
             <Products
               name={"Sci-Fi & Fantasy"}
-              category={"scifi"} /> 
+              query={"category/scifi"} /> 
           )} />
+
+        <Route path="/sort/num_stars"
+          render={(props) => (
+            <Products
+              name={"Books with the Highest Rating"}
+              query={"sort/num_stars"} /> 
+          )} />
+        <Route path="/sort/num_reviews"
+          render={(props) => (
+            <Products
+              name={"Books with the Most Reviews"}
+              query={"sort/num_reviews"} /> 
+          )} />
+        <Route path="/sort/num_buys"
+          render={(props) => (
+            <Products
+              name={"Best Selling Books"}
+              query={"sort/num_buys"} /> 
+          )} />
+        <Route path="/sort/num_views"
+          render={(props) => (
+            <Products
+              name={"Books with the Most Pageviews"}
+              query={"sort/num_views"} /> 
+          )} />
+
 
         <Route exact path="/products/:id" component={ShowProduct} />
       </Switch>
