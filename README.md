@@ -1,23 +1,26 @@
-# yb-ecommerce
+# yugastore
 
 Sample e-commerce app with a products catalog listing, product details page and a shopping cart for online checkout.
 
 Uses the following stack:
-* UI: React
-* REST server: Express and NodeJS
-* Database: pluggable. Can use either the following:
-    * YugaByte DB
-    * PostgreSQL
+* Frontend: ReactJS
+* Backend: Express and NodeJS
+* Database: YugaByte DB
 
-To run the REST API server do:
+Run the following to populate data:
 ```
-$ cd yb-ecommerce
-$ PORT=3001 node bin/www
+node models/yugabyte/db_init.js
 ```
 
-To run the webserver do:
+Start the REST API server using:
 ```
-$ cd yb-ecommerce/ui
+$ cd yugastore
+$ PORT=3001 npm start
+```
+
+Start the webserver using:
+```
+$ cd yugastore/ui
 $ npm install # First time only
 $ npm start
 ```
