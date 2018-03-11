@@ -15,6 +15,7 @@ node models/yugabyte/db_init.js
 Start the REST API server using:
 ```
 $ cd yugastore
+$ npm install # First time only
 $ PORT=3001 npm start
 ```
 
