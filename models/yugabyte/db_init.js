@@ -6,11 +6,17 @@ const assert = require('assert');
 var sample_data = require("../sample_data.json");
 console.log("Parsed %d product items.", sample_data.products.length);
 
+var fs = require('fs'),
+configPath = './config.json';
+var options = JSON.parse(fs.readFileSync(configPath, 'UTF-8'));
+DB_HOST=options.DB_HOST
+console.log("DB host: " + options.DB_HOST);
+
 //
 // Create a YugaByte client for Cassandra and Redis APIs.
 //
-const ybRedisClient = redis.createClient();
-const ybCassandraClient = new cassandra.Client({ contactPoints: ['127.0.0.1'] });
+const ybRedisClient = redis.createClient({host: DB_HOST});
+const ybCassandraClient = new cassandra.Client({ contactPoints: [DB_HOST] });
 ybCassandraClient.connect(function (err) {
   assert.ifError(err);
   console.log("Connected to cluster.");
@@ -21,8 +27,8 @@ ybCassandraClient.connect(function (err) {
 // Create the keyspace.
 //
 function createKeyspace() {
-  ybCassandraClient.execute('CREATE KEYSPACE IF NOT EXISTS yb_ecommerce;', function (err, result) {
-    console.log('Successfully created keyspace yb_ecommerce.');
+  ybCassandraClient.execute('CREATE KEYSPACE IF NOT EXISTS yugastore;', function (err, result) {
+    console.log('Successfully created keyspace yugastore.');
     createProductsTable();
   });
 }
@@ -32,7 +38,7 @@ function createKeyspace() {
 //
 function createProductsTable() {
   const create_table =
-    'CREATE TABLE IF NOT EXISTS yb_ecommerce.products (' +
+    'CREATE TABLE IF NOT EXISTS yugastore.products (' +
     '  id int PRIMARY KEY, ' +
     '  name TEXT, ' +
     '  description TEXT, ' +
@@ -49,7 +55,7 @@ function createProductsTable() {
       console.log(err);
       return;
     }
-    console.log('Successfully created table yb_ecommerce.products.');
+    console.log('Successfully created table yugastore.products.');
     loadProducts();
   });
 }
@@ -66,7 +72,7 @@ function createProductsTable() {
 //            into the same products table to keep things simple. 
 //
 function loadProducts() {
-  const insert = "INSERT INTO yb_ecommerce.products " +
+  const insert = "INSERT INTO yugastore.products " +
                  "  (id, name, description, price, author, type, img, category, num_reviews, total_stars)" +
                  " VALUES" +
                  "  (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);"
@@ -93,7 +99,7 @@ function loadProducts() {
   // Prepare and insert the batch.
   ybCassandraClient.batch(insert_batch, { prepare: true }, function(err) {
      assert.ifError(err);
-     console.log('Inserted %d rows into table yb_ecommerce.products.', insert_batch.length);
+     console.log('Inserted %d rows into table yugastore.products.', insert_batch.length);
      loadReviews(review_metadata);
   });
 }

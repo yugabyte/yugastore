@@ -6,10 +6,16 @@ var _=require('underscore');
 const redis = require("redis")
 const yugabyte = require('cassandra-driver');
 
-const ybRedis = redis.createClient();
+var fs = require('fs'),
+configPath = './config.json';
+var options = JSON.parse(fs.readFileSync(configPath, 'UTF-8'));
+
+DB_HOST=options.DB_HOST
+console.log("DB host: " + options.DB_HOST);
+const ybRedis = redis.createClient({host: DB_HOST});
 const ybCassandra =
-  new yugabyte.Client({ contactPoints: ['127.0.0.1'],
-                        keyspace: 'yb_ecommerce'
+  new yugabyte.Client({ contactPoints: [DB_HOST],
+                        keyspace: 'yugastore'
                       });
 ybCassandra.connect(function (err) {
   if(err) {
@@ -20,7 +26,7 @@ ybCassandra.connect(function (err) {
 /* List all products. */
 router.get('/', function(req, res, next) {
   productListing = [];
-  ybCassandra.execute('SELECT * FROM yb_ecommerce.products;')
+  ybCassandra.execute('SELECT * FROM yugastore.products;')
              .then(result => {
                 const row = result.first();
                 for (var i = 0; i < result.rows.length; i++) {
@@ -55,7 +61,7 @@ router.get('/sort/:sortorder', function(req, res, next) {
 
       // Fetch details for all the product ids.
       productListing = [];
-      var selectStmt = 'SELECT * FROM yb_ecommerce.products WHERE id IN ?;';
+      var selectStmt = 'SELECT * FROM yugastore.products WHERE id IN ?;';
       ybCassandra.execute(selectStmt, [product_ids], { prepare: true })
                   .then(result => {
                     var productsMap = {};
@@ -77,7 +83,7 @@ router.get('/sort/:sortorder', function(req, res, next) {
 /* List products in a specific category. */
 router.get('/category/:category', function(req, res, next) {
   productListing = [];
-  var selectStmt = 'SELECT * FROM yb_ecommerce.products WHERE category=?;';
+  var selectStmt = 'SELECT * FROM yugastore.products WHERE category=?;';
   ybCassandra.execute(selectStmt, [req.params.category])
               .then(result => {
                 const row = result.first();
@@ -94,7 +100,7 @@ router.get('/category/:category', function(req, res, next) {
 router.get('/details/:id', function(req, res, next) {
   var productDetails = {}
   var redisKey = 'product:' + req.params.id;
-  var selectStmt = 'SELECT * FROM yb_ecommerce.products WHERE id=' + req.params.id + ';';
+  var selectStmt = 'SELECT * FROM yugastore.products WHERE id=' + req.params.id + ';';
   ybCassandra.execute(selectStmt)
               .then(result => {
                 var row = result.first();
