@@ -73,7 +73,7 @@ ReactDOM.render(
           )} />
 
 
-        <Route exact path="/products/:id" component={ShowProduct} />
+        <Route exact path="/item/:id" component={ShowProduct} />
       </Switch>
     </BaseLayout>
   </BrowserRouter>

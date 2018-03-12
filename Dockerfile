@@ -34,6 +34,7 @@ CMD [ "./bin/start.sh" ]
 
 #
 # To build:
+#   cd ui && npm run build # if ui has changed
 #   docker build -t yugastore .
 #
 # To run:

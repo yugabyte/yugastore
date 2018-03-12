@@ -9,9 +9,9 @@ const yugabyte = require('cassandra-driver');
 var fs = require('fs'),
 configPath = './config.json';
 var options = JSON.parse(fs.readFileSync(configPath, 'UTF-8'));
-
 DB_HOST=options.DB_HOST
 console.log("DB host: " + options.DB_HOST);
+
 const ybRedis = redis.createClient({host: DB_HOST});
 const ybCassandra =
   new yugabyte.Client({ contactPoints: [DB_HOST],
@@ -98,8 +98,20 @@ router.get('/category/:category', function(req, res, next) {
 
 /* Return details of a specific product id. */
 router.get('/details/:id', function(req, res, next) {
+  var redisKeyPrefix = 'pageviews:product:' + req.params.id + ':';
+
+  // Increment the num pageviews for the product.
+  ybRedis.incrby(redisKeyPrefix + "count", 1);
+  console.log("Responding for id: " + req.params.id);
+
+  // Track the history of pageviews for the product.
+  var payload = "{ userid: '12345', referral_source: 'google', referral_url: 'xyz' }"
+  var d = new Date();
+  var timestamp = Math.round(d.getTime() / 1000);
+  ybRedis.zadd(redisKeyPrefix + "history", timestamp, payload);
+
+  // Return the product details.
   var productDetails = {}
-  var redisKey = 'product:' + req.params.id;
   var selectStmt = 'SELECT * FROM yugastore.products WHERE id=' + req.params.id + ';';
   ybCassandra.execute(selectStmt)
               .then(result => {

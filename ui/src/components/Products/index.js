@@ -50,7 +50,7 @@ class Products extends Component {
               }
               return(
                 <div className="item">
-                  <Link to={`/products/${product.id}`}>
+                  <Link to={`/item/${product.id}`}>
                   <div className="product-img">
                     <img alt={product.name} src={product.img} />
                   </div>
