@@ -19,6 +19,7 @@ COPY app.js ./
 ADD bin ./bin
 ADD config ./config
 ADD models ./models
+ADD public ./public
 ADD routes ./routes
 ADD ui ./ui
 
@@ -37,12 +38,6 @@ CMD [ "./bin/start.sh" ]
 #
 # To run:
 #   docker run -p 3001:3001 -d --network yb-net --name yugastore yugastore
-#
-# Connect the container to the yb network:
-#   docker network connect yb-net yugastore
-#
-# Init:
-#   node models/yugabyte/db_init.js yb-tserver-n1
 #
 # Stop:
 #   docker stop yugastore
