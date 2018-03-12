@@ -1,11 +1,21 @@
-# yugastore
+# Yugastore
 
-Sample e-commerce app with a products catalog listing, product details page and a shopping cart for online checkout.
+This is a sample, end-to-end functional bookstore (or more generally, an e-commerce app) built using YugaByte DB. This app show how YugaByte-DB makes this development very simple by providing a Redis API, as well as a traditional tables/rows/structured query-language based API.
 
 Uses the following stack:
 * Frontend: ReactJS
 * Backend: Express and NodeJS
 * Database: YugaByte DB
+
+The app is continuously being improved. It currently features:
+- products catalog listing
+- product details page
+- static product grouping (such as "business books", "mystery books", etc)
+- dynamic product grouping (such as "most reviewed", "highest rated", etc)
+- tracking for pageviews (both counts and referral for firther analysis)
+- Coming soon: a shopping cart, online checkout, order history tracking.
+
+![YugaStore](https://raw.githubusercontent.com/YugaByte/yugastore/master/screenshots/yugastore-screenshot.png)
 
 # Running the sample app
 
@@ -61,4 +71,6 @@ The app comes with a load tester which mimics the behavior of an end user at a v
 docker exec -it yugastore node /usr/local/yugastore/test/sample-user.js
 ```
 
-You should be able to see the IOPS on the YugaByte DB UI. If you have installed it on your localhost, with default settings, you can see this on the [/tablet-servers](http://localhost:7000/tablet-servers) page.
+You should be able to see the IOPS on the YugaByte DB UI. If you have installed it on your localhost, with default settings, you can see this on the [/tablet-servers](http://localhost:7000/tablet-servers) page. It should look something as follows.
+
+![YugaByte DB load from Yugastore and load tester](https://raw.githubusercontent.com/YugaByte/yugastore/master/screenshots/yugastore-yb-iops-ui.png)
