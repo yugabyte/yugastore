@@ -1,5 +1,5 @@
 {
   "DB_HOST": "yb-tserver-n1",
-  "APP_HOST": "http://yugastore",
+  "APP_HOST": "yugastore",
   "APP_PORT": "3001"
 }

@@ -21,6 +21,7 @@ ADD config ./config
 ADD models ./models
 ADD public ./public
 ADD routes ./routes
+ADD test ./test
 ADD ui ./ui
 
 # Set the config file.
