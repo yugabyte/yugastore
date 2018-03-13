@@ -1,0 +1,5 @@
+{
+  "DB_HOST": "yb-tserver-1.yb-tservers.default.svc.cluster.local",
+  "APP_HOST": "localhost",
+  "APP_PORT": "3001"
+}
