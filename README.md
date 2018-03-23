@@ -35,7 +35,11 @@ docker run -p 3001:3001 -d --network yb-net --name yugastore yugabytedb/yugastor
 
 1. [Install YugaByte DB](https://docs.yugabyte.com/quick-start/install/).
 
-2. Tweak the `config.json` file if needed.
+2. Run the following to initialize. Tweak the `config.json` file if needed.
+```
+$ cd yugastore
+$ npm install # First time only
+```
 
 3. Run the following to populate data:
 ```
@@ -44,8 +48,6 @@ node models/yugabyte/db_init.js
 
 4. Start the REST API server using:
 ```
-$ cd yugastore
-$ npm install # First time only
 $ npm start
 ```
 
