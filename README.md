@@ -17,6 +17,9 @@ This app is built using the following stack:
 * Backend: Express and NodeJS
 * Database: YugaByte DB
 
+# Understanding the app
+
+Review the design of the app in [YugaByte DB Docs](https://docs.yugabyte.com/develop/realworld-apps/ecommerce-app/).
 
 # Running the sample app
 
