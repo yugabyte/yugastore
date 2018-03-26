@@ -79,9 +79,11 @@ function loadProducts() {
   // Prepare a batch insert.
   var insert_batch = [];
   var review_metadata = [];
+  console.log(sample_data.products.length);
+
+
   for (var i = 0; i < sample_data.products.length; i++) {
     var p = sample_data.products[i];
-
     // The number of reviews written for this item will be a random number between 1 and 1000.
     var numReviews = Math.floor(Math.random() * 1000) + 1;
     // Give this item between 3 and 5 stars for each of the reviews above.
@@ -108,12 +110,28 @@ function loadProducts() {
 // For each of the products load the reviews, as well as some views/buys stats.
 //
 function loadReviews(review_metadata) {
+  deleteExistingReviews().then(function(){
+    loadNewReviews(review_metadata).then(function() {
+      teardown();
+    });
+  });
+}
+
+function deleteExistingReviews() {
   // Delete all existing keys.
   ybRedisClient.del("allproducts:num_reviews");
   ybRedisClient.del("allproducts:num_stars");
   ybRedisClient.del("allproducts:num_buys");
   ybRedisClient.del("allproducts:num_views");
+  return new Promise(resolve => {
+    setTimeout(() => {
+      resolve({rows: []});
+    }, 10);
+  });
+}
 
+
+function loadNewReviews(review_metadata) {
   for (var i = 0; i < review_metadata.length; i++) {
     var e = review_metadata[i];
     var numBuys = Math.floor(Math.random() * 100);
@@ -122,17 +140,21 @@ function loadReviews(review_metadata) {
     ybRedisClient.zadd("allproducts:num_stars", e.num_stars, e.id);
     ybRedisClient.zadd("allproducts:num_buys", numBuys, e.id);
     ybRedisClient.zadd("allproducts:num_views", numViews, e.id);
+    if (i === review_metadata.length - 1) {
+      return new Promise(resolve => {
+        setTimeout(() => {
+          resolve({rows: []});
+        }, 10);
+      });
+    }
   }
-  teardown();
 }
-
 //
 // Close the client.
 //
 function teardown() {
   console.log('Shutting down YugaByte client connection for Cassandra API.');
   ybCassandraClient.shutdown();
-
   ybRedisClient.quit(function (err, res) {
     console.log('Shutting down YugaByte client connection for Redis API.');
   });
