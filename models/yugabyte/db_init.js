@@ -17,20 +17,24 @@ console.log("DB host: " + options.DB_HOST);
 //
 const ybRedisClient = redis.createClient({host: DB_HOST});
 const ybCassandraClient = new cassandra.Client({ contactPoints: [DB_HOST] });
-ybCassandraClient.connect(function (err) {
-  assert.ifError(err);
+
+ybCassandraClient.connect().then(function(){
   console.log("Connected to cluster.");
   createKeyspace();
+}).catch(function(err){
+  console.log(err);
 });
 
 //
 // Create the keyspace.
 //
 function createKeyspace() {
-  ybCassandraClient.execute('CREATE KEYSPACE IF NOT EXISTS yugastore;', function (err, result) {
+  ybCassandraClient.execute('CREATE KEYSPACE IF NOT EXISTS yugastore;').then(function(result){
     console.log('Successfully created keyspace yugastore.');
     createProductsTable();
-  });
+  }).catch(function(err){
+    console.log("error" + err);
+  })
 }
 
 //
@@ -108,12 +112,27 @@ function loadProducts() {
 // For each of the products load the reviews, as well as some views/buys stats.
 //
 function loadReviews(review_metadata) {
+  deleteExistingReviews().then(function(){
+    loadNewReviews(review_metadata).then(function(){
+      teardown();
+    });
+  });
+}
+
+function deleteExistingReviews() {
   // Delete all existing keys.
   ybRedisClient.del("allproducts:num_reviews");
   ybRedisClient.del("allproducts:num_stars");
   ybRedisClient.del("allproducts:num_buys");
   ybRedisClient.del("allproducts:num_views");
+  return new Promise(resolve => {
+    setTimeout(() => {
+      resolve({rows: []});
+    }, 20);
+  });
+}
 
+function loadNewReviews(review_metadata) {
   for (var i = 0; i < review_metadata.length; i++) {
     var e = review_metadata[i];
     var numBuys = Math.floor(Math.random() * 100);
@@ -122,8 +141,15 @@ function loadReviews(review_metadata) {
     ybRedisClient.zadd("allproducts:num_stars", e.num_stars, e.id);
     ybRedisClient.zadd("allproducts:num_buys", numBuys, e.id);
     ybRedisClient.zadd("allproducts:num_views", numViews, e.id);
+    if (i === review_metadata.length - 1) {
+      return new Promise(resolve => {
+        setTimeout(() => {
+          resolve({rows: []});
+        }, 60);
+      });
+    }
   }
-  teardown();
+
 }
 
 //
