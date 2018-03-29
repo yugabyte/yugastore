@@ -3,7 +3,7 @@
 cd /usr/local/yugastore
 
 # Init the database.
-models/yugabyte/db_init.js config.json
+node models/yugabyte/db_init.js
 
 # Start the rest service
 npm start
