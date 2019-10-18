@@ -125,9 +125,6 @@ minikube service yugastore
 ```
 
 
-2. Deploy the app 
-
-
 # Run a load tester
 
 The app comes with a load tester which mimics the behavior of an end user at a very high rate. You can run this as follows:
