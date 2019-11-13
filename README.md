@@ -1,6 +1,6 @@
 # Yugastore
 
-This is a sample, end-to-end functional bookstore (or more generally, an e-commerce app) built using YugaByte DB. This app show how YugaByte-DB makes this development very simple by providing a Redis API, as well as a traditional tables/rows/structured query-language based API.
+This is a sample, end-to-end functional bookstore (or more generally, an e-commerce app) built using YugabyteDB. This app shows how YugabyteDB makes this development very simple through its multiple distributed SQL APIs.
 
 The app is continuously being improved. It currently features:
 - products catalog listing
@@ -15,11 +15,11 @@ The app is continuously being improved. It currently features:
 This app is built using the following stack:
 * Frontend: ReactJS
 * Backend: Express and NodeJS
-* Database: YugaByte DB
+* Database: YugabyteDB
 
 # Understanding the app
 
-Review the design of the app in [YugaByte DB Docs](https://docs.yugabyte.com/develop/realworld-apps/ecommerce-app/).
+Review the design of the app in [YugabyteDB Docs](https://docs.yugabyte.com/develop/realworld-apps/ecommerce-app/).
 
 # Running the sample app
 
@@ -27,7 +27,7 @@ Review the design of the app in [YugaByte DB Docs](https://docs.yugabyte.com/dev
 
 You can see the app at http://localhost:3001 after doing the following:
 
-1. [Install YugaByte DB in docker](https://docs.yugabyte.com/quick-start/install/#docker) on your localhost.
+1. [Install YugabyteDB in docker](https://docs.yugabyte.com/quick-start/install/#docker) on your localhost.
 
 2. Run the Yugastore app using the followign command:
 ```
@@ -36,7 +36,7 @@ docker run -p 3001:3001 -d --network yb-net --name yugastore yugabytedb/yugastor
 
 ## Run locally
 
-1. [Install YugaByte DB](https://docs.yugabyte.com/quick-start/install/).
+1. [Install YugabyteDB](https://docs.yugabyte.com/quick-start/install/).
 
 2. Run the following to initialize. Tweak the `config.json` file if needed.
 ```
@@ -63,7 +63,7 @@ $ npm start
 
 ## Run using kubernetes
 
-1. [Install YugaByte DB in kubernetes](https://docs.yugabyte.com/quick-start/install/#kubernetes). Do not forget to initialize the Redis API using the following command after bringing up a local cluster:
+1. [Install YugabyteDB in kubernetes](https://docs.yugabyte.com/quick-start/install/#kubernetes). Do not forget to initialize the YEDIS API using the following command after bringing up a local cluster:
 ```
 kubectl exec -it yb-master-0 /home/yugabyte/bin/yb-admin -- --master_addresses yb-master-0.yb-masters.default.svc.cluster.local:7100,yb-master-1.yb-masters.default.svc.cluster.local:7100,yb-master-2.yb-masters.default.svc.cluster.local:7100 setup_redis_table
 ```
