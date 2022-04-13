@@ -6,7 +6,7 @@
     "start": "supervisor ./bin/www"
   },
   "dependencies": {
-    "async": "^2.6.0",
+    "async": "^3.2.2",
     "body-parser": "~1.18.2",
     "cassandra-driver": "^3.4.1",
     "cookie-parser": "~1.4.3",
