@@ -11,7 +11,7 @@
     "cassandra-driver": "^3.4.1",
     "cookie-parser": "~1.4.3",
     "debug": "~2.6.9",
-    "express": "~4.15.5",
+    "express": "~4.17.3",
     "jade": "~1.11.0",
     "morgan": "~1.9.0",
     "pg": "^7.4.1",
